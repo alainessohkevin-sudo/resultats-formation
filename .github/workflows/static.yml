@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultation des Résultats - Formation CVAV</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+  <!-- Header -->
+  <header class="bg-indigo-900 text-white shadow-lg">
+    <div class="max-w-5xl mx-auto px-4 py-6 text-center">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-wide uppercase">Portail des Résultats de Formation</h1>
+      <p class="text-indigo-200 text-sm sm:text-base mt-2">
+        Séminaire Robert Kimou (Accompagnateurs) &amp; Camp des Meneurs
+      </p>
+    </div>
+  </header>
+
+  <!-- Section Principale -->
+  <main class="max-w-3xl mx-auto px-4 py-8 w-full">
+    
+    <!-- Carte du Formulaire de Recherche -->
+    <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8">
+      <h2 class="text-xl font-semibold text-slate-800 mb-6 border-b pb-3 flex items-center gap-2">
+        <i class="fa-solid fa-magnifying-glass text-indigo-600"></i>
+        Vérifier mes résultats
+      </h2>
+
+      <form id="searchForm" class="space-y-5" onsubmit="rechercherResultat(event)">
+        
+        <!-- Champ Session -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Session de Formation</label>
+          <select id="session" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            <option value="">-- Sélectionnez la session --</option>
+            <option value="Séminaire Robert Kimou">Séminaire Robert Kimou (Accompagnateurs)</option>
+            <option value="Camp des Meneurs">Camp des Meneurs</option>
+          </select>
+        </div>
+
+        <!-- Champ Nom & Prénoms -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Nom et Prénoms</label>
+          <input type="text" id="nom" placeholder="Ex: Kouassi Jean" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <!-- Champ Section de Base -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Section de Base</label>
+          <input type="text" id="section" placeholder="Ex: St Augustin" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        </div>
+
+        <!-- Bouton Soumettre -->
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i>
+          Afficher le résultat
+        </button>
+      </form>
+    </div>
+
+    <!-- Zone d'affichage des Résultats -->
+    <div id="resultArea" class="mt-8 hidden">
+      <!-- Le résultat sera injecté dynamiquement ici par JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-center py-4 text-xs">
+    <p>&copy; 2026 - Système de Consultation des Résultats de Formation</p>
+  </footer>
+
+  <!-- Script de Fonctionnement -->
+  <script>
+    // Exemple de base de données issue de vos fichiers Excel
+    // Vous pourrez charger directement votre fichier CSV / JSON ici
+    const donneesResultats = [
+      {
+        nom: "Kouassi Jean",
+        section: "St Augustin",
+        session: "Séminaire Robert Kimou",
+        annee: "2026",
+        resultat: "Admis",
+        mention: "Bien"
+      },
+      {
+        nom: "Yao Aminata",
+        section: "Ste Thérèse",
+        session: "Camp des Meneurs",
+        annee: "2026",
+        resultat: "Admis",
+        mention: "Très Bien"
+      },
+      {
+        nom: "Koffi Paul",
+        section: "St Augustin",
+        session: "Camp des Meneurs",
+        annee: "2026",
+        resultat: "Ajourné",
+        mention: "-"
+      }
+    ];
+
+    function rechercherResultat(e) {
+      e.preventDefault();
+
+      const sessionSaisie = document.getElementById('session').value;
+      const nomSaisi = document.getElementById('nom').value.trim().toLowerCase();
+      const sectionSaisie = document.getElementById('section').value.trim().toLowerCase();
+      
+      const resultContainer = document.getElementById('resultArea');
+      resultContainer.classList.remove('hidden');
+
+      // Recherche dans la base de données (Tolérance casse et sous-chaînes)
+      const candidat = donneesResultats.find(c => 
+        c.session === sessionSaisie &&
+        c.nom.toLowerCase().includes(nomSaisi) &&
+        c.section.toLowerCase().includes(sectionSaisie)
+      );
+
+      if (candidat) {
+        const isAdmis = candidat.resultat.toLowerCase().includes('admis') || candidat.resultat.toLowerCase().includes('validé');
+        const badgeColor = isAdmis ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300';
+        const iconColor = isAdmis ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-rose-600';
+
+        resultContainer.innerHTML = `
+          <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 sm:p-8 animate-fade-in">
+            <div class="flex items-center gap-3 border-b pb-4 mb-4">
+              <i class="fa-solid ${iconColor} text-3xl"></i>
+              <div>
+                <h3 class="text-xl font-bold text-slate-800">${candidat.nom}</h3>
+                <p class="text-sm text-slate-500">Section : <span class="font-medium text-slate-700">${candidat.section}</span></p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div class="bg-slate-50 p-3 rounded-lg">
+                <span class="block text-slate-500 text-xs">Session</span>
+                <span class="font-semibold text-slate-800">${candidat.session} (${candidat.annee})</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-lg">
+                <span class="block text-slate-500 text-xs">Mention / Note</span>
+                <span class="font-semibold text-slate-800">${candidat.mention}</span>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t flex items-center justify-between">
+              <span class="text-sm font-medium text-slate-600">Décision :</span>
+              <span class="px-4 py-1.5 rounded-full text-sm font-bold border ${badgeColor}">
+                ${candidat.resultat.toUpperCase()}
+              </span>
+            </div>
+          </div>
+        `;
+      } else {
+        resultContainer.innerHTML = `
+          <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-6 text-center">
+            <i class="fa-solid fa-triangle-exclamation text-3xl mb-2 text-amber-600"></i>
+            <h4 class="font-semibold text-lg mb-1">Aucun résultat trouvé</h4>
+            <p class="text-sm">Veuillez vérifier l'orthographe de votre Nom/Prénoms et de votre Section de Base, puis réessayez.</p>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
